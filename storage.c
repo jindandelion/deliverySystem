@@ -3,6 +3,8 @@
 #include <string.h>
 #include "storage.h"
 
+//#define   ROW     4 //GARO 
+//#define   COLUMN  6 //SERO
 /* 
   definition of storage cell structure ----
   members :
@@ -16,18 +18,19 @@ typedef struct {
 	int building;
 	int room;
 	int cnt;
-	char passwd[PASSWD_LEN+1];
-	
+	char passwd[PASSWD_LEN+1];//이렇게 해줘야 크기 5인 배열 생성 되서 마지막 칸에 \0저장해줄 수 있으니까. 
+	//deliverySystem[x][y].passwd[PASSWD_LEN+1]
 	char *context;
 } storage_t;
 
 
 static storage_t** deliverySystem; 			//deliverySystem
 static int storedCnt = 0;					//number of cells occupied
-static int systemSize[2] = {0, 0};  		//row/column of the delivery system
+static int systemSize[2] = {0, 0};  		//row/column of the delivery system 메모장에 이거 적혀있음 잘 끌어와봐. 
 static char masterPassword[PASSWD_LEN+1];	//master password
 
-
+static int row;
+static int column;
 
 
 // ------- inner functions ---------------
@@ -52,13 +55,28 @@ static void printStorageInside(int x, int y) {
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
 	
+	
+	
 }
 
 //get password input and check if it is correct for the cell (x,y)
-//int x, int y : cell for password check
+//int x, int y : cell for password check ???????????????????//
 //return : 0 - password is matching, -1 - password is not matching
 static int inputPasswd(int x, int y) {
 	
+	char inputpasswd[PASSWD_LEN+1];
+	
+	printf("- input password for (%d,%d) :",x,y);
+	scanf("%s",&inputpasswd); 
+	
+	if(!strcmp(inputpasswd,passwd)//if inputpasswd&passwd is same.  
+	{
+		return 0;//password is matching
+	}
+	else
+	{
+		return -1;//password is not matching
+	}
 }
 
 
@@ -80,6 +98,32 @@ int str_backupSystem(char* filepath) {
 //char* filepath : filepath and name to read config parameters (row, column, master password, past contexts of the delivery system
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
+	//create variable 
+
+	FILE *fp=NULL;//여기 이렇게 NULL하는거 맞겠지 
+	fp=fopen(STORAGE_FILEPATH,"r");
+	int i;
+	int j;
+	int inputrow,inputcolumn;
+	char c;
+	//if storage_filepath was not be opened, 
+	/*if(fp!=NULL)
+	{
+		return 0;
+	} 
+	
+	else
+	{
+		return -1;
+	}*/
+	deliverySystem=(struct storage_t**)malloc(ROW*sizeof(struct storage_t*));
+	for(i=0;i<ROW;i++)
+		deliverySystem[i]=(struct storage_t*)malloc(COLUMN*sizeof(storage_t));
+	
+	while((c=fgetc(fp))!=EOF)
+		fscanf(fp,"%d %d %c",systemSize[0],systemSIze[1],passwd[PASSWD_LEN+1]);
+				
+	//fscanf(fp,"%d %d %d %s %s",&inputrow,&deliverySystem[i][j].)//메모장에 있는거를 diliverysystem이차원 배열에 저장 
 	
 }
 
@@ -130,12 +174,12 @@ int str_checkStorage(int x, int y) {
 		return -1;
 	}
 	
-	if (y < 0 || y >= systemSize[1])
+	if (y < 0 || y >= systemSize[1])//systemSize[1] is size of column
 	{
 		return -1;
 	}
 	
-	return deliverySystem[x][y].cnt;	
+	return deliverySystem[x][y].cnt;
 }
 
 
@@ -147,16 +191,44 @@ int str_checkStorage(int x, int y) {
 //char passwd[] : password string (4 characters)
 //return : 0 - successfully put the package, -1 - failed to put
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
-	
+	//if deliverySystem[x][y] is empty, we can store package there so return 0;
+	if(deliverySystem[x][y]==NULL)
+	{
+		//storage.txt 에 저장해준다 아니 어떻게?  
+		FILE *fp;
+		//문자로 담을 변수 
+		fp=fopen("storage.txt","w");
+		
+		scanf("%d %d %d %d %s %s",&x,&y,&nBuilding,&nRoom,&passwd,&msg);
+		//fclose(fp);해줘야 되나? 
+		return 0;
+		//근데 입력해준게 맞는지도 이 함수에서 해야 되나? 
+	}
+	else
+	{
+		return -1;
+	} 
 }
 
 
 
 //extract the package context with password checking
-//after password checking, then put the msg string on the screen and re-initialize the storage
+//after password checking->function putpasswd, then put the msg string on the screen and re-initialize the storage
 //int x, int y : coordinate of the cell to extract
 //return : 0 - successfully extracted, -1 = failed to extract
 int str_extractStorage(int x, int y) {
+	
+	inputPasswd(int x, int y);
+	
+	//if password not matching I want get out.
+	if(inputPasswd(x,y)!=0)
+	{
+		break;/////////////////////////////////////////////////////////
+	}
+	else
+	{
+		printStorageInside(x,y);
+	}
 	
 }
 
@@ -166,5 +238,10 @@ int str_extractStorage(int x, int y) {
 //return : number of packages that the storage system has
 int str_findStorage(int nBuilding, int nRoom) {
 	
+	int i;
+	
+	for(i=0;i<cnt;i++)
+		printf("------------>Found a package in (%d,%d)\n",x,y);
+		
 	return cnt;
 }

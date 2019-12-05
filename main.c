@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
 				y = getIntegerInput();
 				
                 //check the input storage cell
-				if (str_checkStorage(x,y) <= 0)
+				if (str_checkStorage(x,y) <= 0)//이게 정해진 공간에 맞는 건가 판단해줌. 
 				{
 					printf(" -----------> Storage (%i,%i) is empty or invalid!\n", x, y);
 					continue;
