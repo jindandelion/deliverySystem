@@ -55,6 +55,7 @@ static void printStorageInside(int x, int y) {
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
 	
+	if(deliverySystem[x][y])
 	
 	
 }
@@ -208,6 +209,7 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 	{
 		return -1;
 	} 
+	storedCnt++;//+1 number of cells occupied
 }
 
 
@@ -217,7 +219,7 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 //int x, int y : coordinate of the cell to extract
 //return : 0 - successfully extracted, -1 = failed to extract
 int str_extractStorage(int x, int y) {
-	
+	//If password is matching, inputPasswd function return 0.
 	inputPasswd(int x, int y);
 	
 	//if password not matching I want get out.
@@ -227,9 +229,10 @@ int str_extractStorage(int x, int y) {
 	}
 	else
 	{
-		printStorageInside(x,y);
+		printStorageInside(x,y);//print the inside context of a specific cell.
+		initStorage(x,y);//extract package initialize that storage.
 	}
-	
+	storedCnt--;//--number of cells occupied
 }
 
 //find my package from the storage
@@ -238,10 +241,27 @@ int str_extractStorage(int x, int y) {
 //return : number of packages that the storage system has
 int str_findStorage(int nBuilding, int nRoom) {
 	
+	File *fp=fopen("storage.txt","r");
 	int i;
+	//int cnt;
+	//메인에서 fopen해줬나? 아님 여기서 써줘야되는지 확인. 
+	while((c=fgetc(fp))!=EOF)
+	{
+		 
+	}
+	//매개변수가 nBuilding이랑 nRoom이야.
+	//메모장에 있는걸 하나씩 다 읽어야 되나? 
 	
-	for(i=0;i<cnt;i++)
-		printf("------------>Found a package in (%d,%d)\n",x,y);
+	/*if(deliverySystem[x][y].room==nRoom&&deliverySystem[x][y].building==nBuilding)
+	{
 		
+		for(i=0;i<cnt;i++)
+		{
+			printf("------------>Found a package in (%d,%d)\n",x,y);
+			deliverySystem[x][y].cnt++;
+		}	
+	}*/
+	fclose(*fp);
+	
 	return cnt;
 }
