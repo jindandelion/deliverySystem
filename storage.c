@@ -3,8 +3,6 @@
 #include <string.h>
 #include "storage.h"
 
-//#define   ROW     4 //GARO 
-//#define   COLUMN  6 //SERO
 /* 
   definition of storage cell structure ----
   members :
@@ -54,23 +52,33 @@ static void printStorageInside(int x, int y) {
 //and allocate memory to the context pointer
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
+	//initialize specific storage
 	
-	if(deliverySystem[x][y])
+	
+	//Delete the saved contents of the file.
+	/*File *fp;
+	fp=fopen(STORAGE_FILEPATH,"w");//쓰기모드로 열면 원래 있던거 다 자동으로 지워져.  */
+	
+	//파일 쓰지말고 그냥 deliverySystem이걸로 초기화 하는 방법 생각.
+	//deliverySystem[x][y]= 
+		
 	
 	
 }
 
 //get password input and check if it is correct for the cell (x,y)
-//int x, int y : cell for password check ???????????????????//
+//int x, int y : cell for password check 
 //return : 0 - password is matching, -1 - password is not matching
-static int inputPasswd(int x, int y) {
-	
+static int inputPasswd(int x, int y){
+	 
 	char inputpasswd[PASSWD_LEN+1];
 	
 	printf("- input password for (%d,%d) :",x,y);
+	//Input password
 	scanf("%s",&inputpasswd); 
-	
-	if(!strcmp(inputpasswd,passwd)//if inputpasswd&passwd is same.  
+	/////////////////////////////////////////////////////////
+	//Compare password is match or not.
+	if(!strcmp(inputpasswd,deliverySystem[x][y].passwd[PASSWD_LEN+1]))//if inputpasswd&passwd is same.  
 	{
 		return 0;//password is matching
 	}
@@ -91,6 +99,27 @@ static int inputPasswd(int x, int y) {
 //return : 0 - backup was successfully done, -1 - failed to backup
 int str_backupSystem(char* filepath) {
 	
+	int i;
+	
+	FILE *fp;
+	//I open file mode"w",so storage.txt will be empty.
+	fp=fopen(filepath,"w");
+	
+	//Print All Information again in storage.txt
+	fprintf("%d %d\n",systemSize[0],systemSize[1]);
+	fprintf("%d\n",masterPassword[PASSWD_LEN+1]);
+	
+	for(i=0;i<storedCnt;i++)
+	{
+		//아니 그래서 내가 헷갈리는건 .....음음음음ㅇ 어케해!!! 그 row랑 column불러오는것부터,,, x,y어케 저장해주냐고.. 
+		//Requier of declare variables(x,y)
+		fprintf("%d %d %d %d",/*row*/,/*column*/,deliverySystem[x][y].building,deliverySystem[x][y].room)
+		fprintf("%s %s",deliverySystem[x][y].passwd,deliverySystem[x][y].context);
+	}
+	//바뀐것대로 다 저장해줘야되는건가? 어떻게? 
+	//프로그램이 한번 돌아갈때마다 백업 해줘야 하는 건데, 그러면 원래 있던 내용 싹다 지우고
+	//바뀐 내용부터 다시 처음부터 써줘도 되는가요?
+	//백업이 실패한다는게 무슨뜻인지 잘 모르겠습니다. 
 }
 
 
@@ -100,37 +129,57 @@ int str_backupSystem(char* filepath) {
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
 	//create variable 
-
-	FILE *fp=NULL;//여기 이렇게 NULL하는거 맞겠지 
-	fp=fopen(STORAGE_FILEPATH,"r");
-	int i;
-	int j;
+	int i,j;
 	int inputrow,inputcolumn;
 	char c;
-	//if storage_filepath was not be opened, 
-	/*if(fp!=NULL)
-	{
-		return 0;
+	
+	FILE *fp;//여기 이렇게 NULL하는거 맞겠지 
+	fp=fopen(filepath,"r");//open storage.txt file
+	fscanf(fp,"%d %d",&systemSize[0],&systemSize[0]);
+	fscanf(fp,"%s",masterPassword);
+	
+	if(fp=NULL)
+	{	
+		return -1;
 	} 
 	
 	else
 	{
-		return -1;
-	}*/
-	deliverySystem=(struct storage_t**)malloc(ROW*sizeof(struct storage_t*));
-	for(i=0;i<ROW;i++)
-		deliverySystem[i]=(struct storage_t*)malloc(COLUMN*sizeof(storage_t));
+		//allocate memory
+		deliverySystem=(struct storage_t**)malloc(systemSize[0]*sizeof(struct storage_t*));
 	
-	while((c=fgetc(fp))!=EOF)
-		fscanf(fp,"%d %d %c",systemSize[0],systemSIze[1],passwd[PASSWD_LEN+1]);
-				
-	//fscanf(fp,"%d %d %d %s %s",&inputrow,&deliverySystem[i][j].)//메모장에 있는거를 diliverysystem이차원 배열에 저장 
+		for(i=0;i<systemSize[0];i++)
+			deliverySystem[i]=(struct storage_t*)malloc(systemSize[1]*sizeof(storage_t));
+		
+		while(fp!=EOF)
+		{
+			//Require declare variables(x,y)
+			fscanf(fp,"%d %d",&x,&y);
+			fscanf(fp,"%d %d %s\n",&deliverySystem[x][y].building,deliverySystem[x][y].room,deliverySystem[x][y].passwd/*[PASSWD_LEN+1]*/);
+		}
+		
+		deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
+	    fscanf(fp,"%s",deliverySystem[x][y].context);
+	    
+		return 0;
+	}		
 	
+	fclose(fp);
 }
 
 //free the memory of the deliverySystem 
 void str_freeSystem(void) {
+	//Use "for" and free memory of the deliverySystem.
+	int i,j;
 	
+	for(i=0;i<systemSize[0];i++)
+	{
+		for(j=0;j<systemSize[1];j++)
+		{
+			free(deliverySystem[i][j].context);
+		}
+	}
+
 }
 
 
@@ -193,17 +242,16 @@ int str_checkStorage(int x, int y) {
 //return : 0 - successfully put the package, -1 - failed to put
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
 	//if deliverySystem[x][y] is empty, we can store package there so return 0;
-	if(deliverySystem[x][y]==NULL)
+	if(deliverySystem[x][y]==/*NU에 저장된 값이 없다면,LL*/)
 	{
-		//storage.txt 에 저장해준다 아니 어떻게?  
-		FILE *fp;
-		//문자로 담을 변수 
-		fp=fopen("storage.txt","w");
+		//print input number at the storage.txt 
+		//fprintf("%d %d %d %d %s %s",x,y,nBuilding,nRoom,msg[MAX_MSG_SIZE+1],passwd[PASSWD_LEN+1]);
+		diliverySystem[x][y]->building=nBuilding;
+		diliverySystem[x][y]->building=nRoom;
+		diliverySystem[x][y]->building=msg[MAX_MSG_SIZE+1];
+		diliverySystem[x][y]->building=passwd[PASSWD_LEN+1];
 		
-		scanf("%d %d %d %d %s %s",&x,&y,&nBuilding,&nRoom,&passwd,&msg);
-		//fclose(fp);해줘야 되나? 
 		return 0;
-		//근데 입력해준게 맞는지도 이 함수에서 해야 되나? 
 	}
 	else
 	{
@@ -222,15 +270,17 @@ int str_extractStorage(int x, int y) {
 	//If password is matching, inputPasswd function return 0.
 	inputPasswd(int x, int y);
 	
-	//if password not matching I want get out.
+	//if password not matching I want finish this turn.
 	if(inputPasswd(x,y)!=0)
 	{
-		break;/////////////////////////////////////////////////////////
+		return -1;/////////////////////////////////////////////////////////
 	}
 	else
 	{
 		printStorageInside(x,y);//print the inside context of a specific cell.
 		initStorage(x,y);//extract package initialize that storage.
+		
+		return 0;
 	}
 	storedCnt--;//--number of cells occupied
 }
@@ -240,28 +290,21 @@ int str_extractStorage(int x, int y) {
 //int nBuilding, int nRoom : my building/room numbers
 //return : number of packages that the storage system has
 int str_findStorage(int nBuilding, int nRoom) {
-	
-	File *fp=fopen("storage.txt","r");
-	int i;
-	//int cnt;
-	//메인에서 fopen해줬나? 아님 여기서 써줘야되는지 확인. 
-	while((c=fgetc(fp))!=EOF)
+	//packagecnt is return value of this function. if return value is 0, print"failed find package" in the main function 
+	//if there are package that user want to find, packagecnt is not 0 anymore.
+	int packagecnt;
+	int i,j;
+	/*file에서 찾지마라!!*/
+	for(i=0;i<systemSize[0];i++)
 	{
-		 
-	}
-	//매개변수가 nBuilding이랑 nRoom이야.
-	//메모장에 있는걸 하나씩 다 읽어야 되나? 
-	
-	/*if(deliverySystem[x][y].room==nRoom&&deliverySystem[x][y].building==nBuilding)
-	{
-		
-		for(i=0;i<cnt;i++)
+		for(j=0;j<systemSize[1];j++)
 		{
-			printf("------------>Found a package in (%d,%d)\n",x,y);
-			deliverySystem[x][y].cnt++;
-		}	
-	}*/
-	fclose(*fp);
-	
-	return cnt;
+			if(deliverySystem[i][j].building==nBuilding&&deliverySystem[i][j].building==nRoom)
+			{
+				printf("------------>Found a package in (%d,%d)\n",x,y);
+				packagecnt++;
+			}
+		}
+	 
+	return packagecnt;
 }
