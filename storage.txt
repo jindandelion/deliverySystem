@@ -1,7 +1,2 @@
 4 6
-1234
-0 0 2 206 dddd eeee
-0 1 2 206 dddd yangmar
-1 4 3 103 abcd electronics
-2 3 6 902 hihi programming
-3 4 8 504 5312 helloWorld
+1216

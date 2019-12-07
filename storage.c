@@ -27,8 +27,8 @@ static int storedCnt = 0;					//number of cells occupied
 static int systemSize[2] = {0, 0};  		//row/column of the delivery system 
 static char masterPassword[PASSWD_LEN+1];	//master password
 
-static int row;
-static int column;
+//static int row;
+//static int column;
 
 
 // ------- inner functions ---------------
@@ -54,8 +54,9 @@ static void printStorageInside(int x, int y) {
 static void initStorage(int x, int y) {
 	//initialize specific storage
 	deliverySystem[x][y].cnt=0;
+	printf("package is getout of the deliverySystem\n");
 	
-	deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
+	//deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
 	
 	//fscanf(fp,"%s",deliverySystem[x][y].context);
 	 
@@ -67,16 +68,16 @@ static void initStorage(int x, int y) {
 //return : 0 - password is matching, -1 - password is not matching
 static int inputPasswd(int x, int y){
 	 
-	char *inputpasswd[PASSWD_LEN+1];
+	char inputpasswd[PASSWD_LEN+1];
 	
 	printf("- input password for (%d,%d) :",x,y);
 	//Input password
-	scanf("%s",&inputpasswd[PASSWD_LEN+1]);
+	scanf("%s",inputpasswd);
 	//Compare password is match or not.
 	
 	//if inputpasswd&(passwd or masterpassword) is same. 
 	
-	if(strcmp(inputpasswd[PASSWD_LEN+1],deliverySystem[x][y].passwd[PASSWD_LEN+1])==0||strcmp(inputpasswd[PASSWD_LEN+1],masterPassword[PASSWD_LEN+1]==0))
+	if(strcmp(inputpasswd,deliverySystem[x][y].passwd)==0||strcmp(inputpasswd,masterPassword)==0)
 	{
 		return 0;
 		//password is matching
@@ -107,7 +108,7 @@ int str_backupSystem(char* filepath) {
 	
 	//Print All Information again in storage.txt
 	fprintf(fp,"%d %d\n",systemSize[0],systemSize[1]);
-	fprintf(fp,"%s\n",masterPassword[PASSWD_LEN+1]);
+	fprintf(fp,"%s\n",masterPassword);
 	
 	for(x=0;x<systemSize[0];x++)
 	{
@@ -116,12 +117,9 @@ int str_backupSystem(char* filepath) {
 			if(deliverySystem[x][y].cnt!=0)
 			{
 				fprintf(fp,"%d %d %d %d",x,y,deliverySystem[x][y].building,deliverySystem[x][y].room);
-				fprintf(fp,"%s %s",deliverySystem[x][y].passwd,deliverySystem[x][y].context);
+				fprintf(fp,"%s %s\n",deliverySystem[x][y].passwd,deliverySystem[x][y].context);
 			}
-			else
-			{
-				break;
-			}
+		
 		}
 	
 	}
@@ -136,7 +134,7 @@ int str_backupSystem(char* filepath) {
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
 	//create variable 
-	int i;
+	int i,j;
 	int x,y;//this variables for row&column
 	char c;
 	
@@ -155,25 +153,44 @@ int str_createSystem(char* filepath) {
 	{
 		//allocate memory
 		deliverySystem=(struct storage_t**)malloc(systemSize[0]*sizeof(struct storage_t*));
-	
 		for(i=0;i<systemSize[0];i++)
+		{
 			deliverySystem[i]=(struct storage_t*)malloc(systemSize[1]*sizeof(storage_t));
-		
-		while(filepath!=EOF)
+		}
+			
+		for(i=0;i<systemSize[0];i++)
+		{
+			for(j=0;j<systemSize[0];j++)
+				deliverySystem[i][j].context=(char *)malloc(100*sizeof(char));
+		}
+		//deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
+		for(i=0;i<systemSize[0];i++)
+		{
+			for(j=0;j<systemSize[0];j++)
+			{
+				deliverySystem[i][j].cnt=0;
+			}
+				
+		}
+		//deliverySystem[x][y].cnt=0
+		while((c=fgetc(fp))!=EOF)
 		{
 			//Require declare variables(x,y)
 			fscanf(fp,"%d %d",&x,&y);
-			fscanf(fp,"%d %d %s\n",&deliverySystem[x][y].building,deliverySystem[x][y].room,deliverySystem[x][y].passwd[PASSWD_LEN+1]);
+			deliverySystem[x][y].cnt++;
+			fscanf(fp,"%d %d %s",&deliverySystem[x][y].building,&deliverySystem[x][y].room,deliverySystem[x][y].passwd);
 			fscanf(fp,"%s",deliverySystem[x][y].context);
 		}
 		//allocate memory again for context.
 		//deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
 	    //fscanf(fp,"%s",deliverySystem[x][y].context);
 	    
-		return 0;
+	fclose(fp);
+	
+	return 0;
 	}		
 	
-	fclose(fp);
+	
 }
 
 //free the memory of the deliverySystem 
@@ -185,6 +202,7 @@ void str_freeSystem(void) {
 	{
 		for(j=0;j<systemSize[1];j++)
 		{
+			//free(deliverySystem[i][j]);
 			free(deliverySystem[i][j].context);
 		}
 	}
@@ -259,7 +277,7 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 		deliverySystem[x][y].building=nRoom;
 		deliverySystem[x][y].building=msg[MAX_MSG_SIZE+1];
 		deliverySystem[x][y].building=passwd[PASSWD_LEN+1];
-		
+		deliverySystem[x][y].cnt++;
 		return 0;
 	}
 	else
@@ -290,10 +308,11 @@ int str_extractStorage(int x, int y) {
 	{
 		printStorageInside(x,y);//print the inside context of a specific cell.
 		initStorage(x,y);//extract package initialize that storage.
+		storedCnt--;
 		
 		return 0;
 	}
-	storedCnt--;//-1 number of cells occupied
+	//-1 number of cells occupied
 }
 
 //find my package from the storage
