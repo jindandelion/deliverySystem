@@ -72,7 +72,7 @@ static int inputPasswd(int x, int y){
 	
 	printf("- input password for (%d,%d) :",x,y);
 	//Input password
-	scanf("%s",inputpasswd);
+	scanf("%4s",inputpasswd);
 	//Compare password is match or not.
 	
 	//if inputpasswd&(passwd or masterpassword) is same. 
@@ -152,10 +152,10 @@ int str_createSystem(char* filepath) {
 	else
 	{
 		//allocate memory
-		deliverySystem=(struct storage_t**)malloc(systemSize[0]*sizeof(struct storage_t*));
+		deliverySystem=/*(struct storage_t**)*/malloc(systemSize[0]*sizeof(struct storage_t*));
 		for(i=0;i<systemSize[0];i++)
 		{
-			deliverySystem[i]=(struct storage_t*)malloc(systemSize[1]*sizeof(storage_t));
+			deliverySystem[i]=/*(struct storage_t*)*/malloc(systemSize[1]*sizeof(storage_t));
 		}
 			
 		for(i=0;i<systemSize[0];i++)
@@ -197,6 +197,13 @@ int str_createSystem(char* filepath) {
 void str_freeSystem(void) {
 	//Use "for" and free memory of the deliverySystem.
 	int i,j;
+	
+	free(deliverySystem);
+	
+	for(i=0;i<systemSize[0];i++)
+	{
+		free(deliverySystem[i]);
+	}
 	
 	for(i=0;i<systemSize[0];i++)
 	{
@@ -323,19 +330,19 @@ int str_findStorage(int nBuilding, int nRoom) {
 	//packagecnt is return value of this function. if return value is 0, print"failed find package" in the main function 
 	
 	//variable packagecnt:if there are package that user want to find, packagecnt is not 0 anymore.so return not zero.
-	int packagecnt;
-	int i,j;
 
+	int i,j;
+	int cnt;
 	for(i=0;i<systemSize[0];i++)
 	{
 		for(j=0;j<systemSize[1];j++)
 		{
-			if(deliverySystem[i][j].building==nBuilding&&deliverySystem[i][j].building==nRoom)
+			if(deliverySystem[i][j].building==nBuilding&&deliverySystem[i][j].room==nRoom)
 			{
 				printf("------------>Found a package in (%d,%d)\n",i,j);
-				packagecnt++;
+				cnt++;
 			}
 		}
 	}
-	return packagecnt;
+	return cnt;
 }
