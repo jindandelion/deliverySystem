@@ -53,7 +53,6 @@ static void printStorageInside(int x, int y) {
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
 	//initialize specific storage
-	//파일 쓰지말고 그냥 deliverySystem이걸로 초기화 하는 방법 생각.
 	deliverySystem[x][y].cnt=0;
 	
 	deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
@@ -68,16 +67,16 @@ static void initStorage(int x, int y) {
 //return : 0 - password is matching, -1 - password is not matching
 static int inputPasswd(int x, int y){
 	 
-	char inputpasswd[PASSWD_LEN+1];
+	char *inputpasswd[PASSWD_LEN+1];
 	
 	printf("- input password for (%d,%d) :",x,y);
 	//Input password
-	scanf("%s",&inputpasswd); 
-	/////////////////////////////////////////////////////////
+	scanf("%s",&inputpasswd[PASSWD_LEN+1]);
 	//Compare password is match or not.
 	
 	//if inputpasswd&(passwd or masterpassword) is same. 
-	if(strcmp(inputpasswd,deliverySystem[x][y].passwd[PASSWD_LEN+1])==0||strcmp(inputpasswd,masterPassword[PASSWD_LEN+1]==0))
+	
+	if(strcmp(inputpasswd[PASSWD_LEN+1],deliverySystem[x][y].passwd[PASSWD_LEN+1])==0||strcmp(inputpasswd[PASSWD_LEN+1],masterPassword[PASSWD_LEN+1]==0))
 	{
 		return 0;
 		//password is matching
@@ -90,8 +89,6 @@ static int inputPasswd(int x, int y){
 	}
 	
 }
-
-
 
 
 
@@ -109,8 +106,8 @@ int str_backupSystem(char* filepath) {
 	fp=fopen(filepath,"w");
 	
 	//Print All Information again in storage.txt
-	fprintf("%d %d\n",systemSize[0],systemSize[1]);
-	fprintf("%d\n",masterPassword[PASSWD_LEN+1]);
+	fprintf(fp,"%d %d\n",systemSize[0],systemSize[1]);
+	fprintf(fp,"%s\n",masterPassword[PASSWD_LEN+1]);
 	
 	for(x=0;x<systemSize[0];x++)
 	{
@@ -118,8 +115,8 @@ int str_backupSystem(char* filepath) {
 		{
 			if(deliverySystem[x][y].cnt!=0)
 			{
-				fprintf("%d %d %d %d",x,y,deliverySystem[x][y].building,deliverySystem[x][y].room);
-				fprintf("%s %s",deliverySystem[x][y].passwd,deliverySystem[x][y].context);
+				fprintf(fp,"%d %d %d %d",x,y,deliverySystem[x][y].building,deliverySystem[x][y].room);
+				fprintf(fp,"%s %s",deliverySystem[x][y].passwd,deliverySystem[x][y].context);
 			}
 			else
 			{
@@ -139,7 +136,7 @@ int str_backupSystem(char* filepath) {
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
 	//create variable 
-	int i,j;
+	int i;
 	int x,y;//this variables for row&column
 	char c;
 	
@@ -162,7 +159,7 @@ int str_createSystem(char* filepath) {
 		for(i=0;i<systemSize[0];i++)
 			deliverySystem[i]=(struct storage_t*)malloc(systemSize[1]*sizeof(storage_t));
 		
-		while(fp!=EOF)
+		while(filepath!=EOF)
 		{
 			//Require declare variables(x,y)
 			fscanf(fp,"%d %d",&x,&y);
@@ -282,11 +279,13 @@ int str_extractStorage(int x, int y) {
 	//If password is matching, inputPasswd function return 0.
 	inputPasswd(x, y);
 	
-	//if password not matching I want finish this turn.
+	//if password not matching I want finish this turn so return -1.
 	if(inputPasswd(x,y)!=0)
 	{
-		return -1;/////////////////////////////////////////////////////////
+		printf(" -----------> Password is wrong!\n");
+		return -1;
 	}
+	//if password is matching, delivery system give user's package.
 	else
 	{
 		printStorageInside(x,y);//print the inside context of a specific cell.
@@ -294,7 +293,7 @@ int str_extractStorage(int x, int y) {
 		
 		return 0;
 	}
-	storedCnt--;//--number of cells occupied
+	storedCnt--;//-1 number of cells occupied
 }
 
 //find my package from the storage
@@ -303,10 +302,11 @@ int str_extractStorage(int x, int y) {
 //return : number of packages that the storage system has
 int str_findStorage(int nBuilding, int nRoom) {
 	//packagecnt is return value of this function. if return value is 0, print"failed find package" in the main function 
-	//if there are package that user want to find, packagecnt is not 0 anymore.
+	
+	//variable packagecnt:if there are package that user want to find, packagecnt is not 0 anymore.so return not zero.
 	int packagecnt;
 	int i,j;
-	/*file에서 찾지마라!!*/
+
 	for(i=0;i<systemSize[0];i++)
 	{
 		for(j=0;j<systemSize[1];j++)
