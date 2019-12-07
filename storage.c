@@ -16,7 +16,7 @@ typedef struct {
 	int building;
 	int room;
 	int cnt;
-	char passwd[PASSWD_LEN+1];//이렇게 해줘야 크기 5인 배열 생성 되서 마지막 칸에 \0저장해줄 수 있으니까. 
+	char passwd[PASSWD_LEN+1];
 	//deliverySystem[x][y].passwd[PASSWD_LEN+1]
 	char *context;
 } storage_t;
@@ -24,7 +24,7 @@ typedef struct {
 
 static storage_t** deliverySystem; 			//deliverySystem
 static int storedCnt = 0;					//number of cells occupied
-static int systemSize[2] = {0, 0};  		//row/column of the delivery system 메모장에 이거 적혀있음 잘 끌어와봐. 
+static int systemSize[2] = {0, 0};  		//row/column of the delivery system 
 static char masterPassword[PASSWD_LEN+1];	//master password
 
 static int row;
@@ -53,17 +53,14 @@ static void printStorageInside(int x, int y) {
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
 	//initialize specific storage
-	
-	
-	//Delete the saved contents of the file.
-	/*File *fp;
-	fp=fopen(STORAGE_FILEPATH,"w");//쓰기모드로 열면 원래 있던거 다 자동으로 지워져.  */
-	
 	//파일 쓰지말고 그냥 deliverySystem이걸로 초기화 하는 방법 생각.
-	//deliverySystem[x][y]= 
+	deliverySystem[x][y].cnt=0;
+	
+	deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
+	
+	//fscanf(fp,"%s",deliverySystem[x][y].context);
+	 
 		
-	
-	
 }
 
 //get password input and check if it is correct for the cell (x,y)
@@ -78,14 +75,20 @@ static int inputPasswd(int x, int y){
 	scanf("%s",&inputpasswd); 
 	/////////////////////////////////////////////////////////
 	//Compare password is match or not.
-	if(!strcmp(inputpasswd,deliverySystem[x][y].passwd[PASSWD_LEN+1]))//if inputpasswd&passwd is same.  
+	
+	//if inputpasswd&(passwd or masterpassword) is same. 
+	if(strcmp(inputpasswd,deliverySystem[x][y].passwd[PASSWD_LEN+1])==0||strcmp(inputpasswd,masterPassword[PASSWD_LEN+1]==0))
 	{
-		return 0;//password is matching
+		return 0;
+		//password is matching
 	}
+	//if inputpassword not correct
 	else
 	{
-		return -1;//password is not matching
+		return -1;
+		//password is not matching
 	}
+	
 }
 
 
@@ -98,8 +101,8 @@ static int inputPasswd(int x, int y){
 //char* filepath : filepath and name to write
 //return : 0 - backup was successfully done, -1 - failed to backup
 int str_backupSystem(char* filepath) {
-	
-	int i;
+	//variable information:x is specific row, y is specific column variable
+	int x,y; 
 	
 	FILE *fp;
 	//I open file mode"w",so storage.txt will be empty.
@@ -109,17 +112,24 @@ int str_backupSystem(char* filepath) {
 	fprintf("%d %d\n",systemSize[0],systemSize[1]);
 	fprintf("%d\n",masterPassword[PASSWD_LEN+1]);
 	
-	for(i=0;i<storedCnt;i++)
+	for(x=0;x<systemSize[0];x++)
 	{
-		//아니 그래서 내가 헷갈리는건 .....음음음음ㅇ 어케해!!! 그 row랑 column불러오는것부터,,, x,y어케 저장해주냐고.. 
-		//Requier of declare variables(x,y)
-		fprintf("%d %d %d %d",/*row*/,/*column*/,deliverySystem[x][y].building,deliverySystem[x][y].room)
-		fprintf("%s %s",deliverySystem[x][y].passwd,deliverySystem[x][y].context);
+		for(y=0;y<systemSize[1];y++)
+		{
+			if(deliverySystem[x][y].cnt!=0)
+			{
+				fprintf("%d %d %d %d",x,y,deliverySystem[x][y].building,deliverySystem[x][y].room);
+				fprintf("%s %s",deliverySystem[x][y].passwd,deliverySystem[x][y].context);
+			}
+			else
+			{
+				break;
+			}
+		}
+	
 	}
-	//바뀐것대로 다 저장해줘야되는건가? 어떻게? 
-	//프로그램이 한번 돌아갈때마다 백업 해줘야 하는 건데, 그러면 원래 있던 내용 싹다 지우고
-	//바뀐 내용부터 다시 처음부터 써줘도 되는가요?
-	//백업이 실패한다는게 무슨뜻인지 잘 모르겠습니다. 
+	//close the file.
+	fclose(fp);
 }
 
 
@@ -130,12 +140,13 @@ int str_backupSystem(char* filepath) {
 int str_createSystem(char* filepath) {
 	//create variable 
 	int i,j;
-	int inputrow,inputcolumn;
+	int x,y;//this variables for row&column
 	char c;
 	
-	FILE *fp;//여기 이렇게 NULL하는거 맞겠지 
-	fp=fopen(filepath,"r");//open storage.txt file
-	fscanf(fp,"%d %d",&systemSize[0],&systemSize[0]);
+	FILE *fp;
+	fp=fopen(filepath,"r");//open storage.txt file mode reading.
+	
+	fscanf(fp,"%d %d",&systemSize[0],&systemSize[1]);
 	fscanf(fp,"%s",masterPassword);
 	
 	if(fp=NULL)
@@ -155,11 +166,12 @@ int str_createSystem(char* filepath) {
 		{
 			//Require declare variables(x,y)
 			fscanf(fp,"%d %d",&x,&y);
-			fscanf(fp,"%d %d %s\n",&deliverySystem[x][y].building,deliverySystem[x][y].room,deliverySystem[x][y].passwd/*[PASSWD_LEN+1]*/);
+			fscanf(fp,"%d %d %s\n",&deliverySystem[x][y].building,deliverySystem[x][y].room,deliverySystem[x][y].passwd[PASSWD_LEN+1]);
+			fscanf(fp,"%s",deliverySystem[x][y].context);
 		}
-		
-		deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
-	    fscanf(fp,"%s",deliverySystem[x][y].context);
+		//allocate memory again for context.
+		//deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
+	    //fscanf(fp,"%s",deliverySystem[x][y].context);
 	    
 		return 0;
 	}		
@@ -242,14 +254,14 @@ int str_checkStorage(int x, int y) {
 //return : 0 - successfully put the package, -1 - failed to put
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
 	//if deliverySystem[x][y] is empty, we can store package there so return 0;
-	if(deliverySystem[x][y]==/*NU에 저장된 값이 없다면,LL*/)
+	if(deliverySystem[x][y].cnt==0)
 	{
 		//print input number at the storage.txt 
 		//fprintf("%d %d %d %d %s %s",x,y,nBuilding,nRoom,msg[MAX_MSG_SIZE+1],passwd[PASSWD_LEN+1]);
-		diliverySystem[x][y]->building=nBuilding;
-		diliverySystem[x][y]->building=nRoom;
-		diliverySystem[x][y]->building=msg[MAX_MSG_SIZE+1];
-		diliverySystem[x][y]->building=passwd[PASSWD_LEN+1];
+		deliverySystem[x][y].building=nBuilding;
+		deliverySystem[x][y].building=nRoom;
+		deliverySystem[x][y].building=msg[MAX_MSG_SIZE+1];
+		deliverySystem[x][y].building=passwd[PASSWD_LEN+1];
 		
 		return 0;
 	}
@@ -268,7 +280,7 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 //return : 0 - successfully extracted, -1 = failed to extract
 int str_extractStorage(int x, int y) {
 	//If password is matching, inputPasswd function return 0.
-	inputPasswd(int x, int y);
+	inputPasswd(x, y);
 	
 	//if password not matching I want finish this turn.
 	if(inputPasswd(x,y)!=0)
@@ -301,10 +313,10 @@ int str_findStorage(int nBuilding, int nRoom) {
 		{
 			if(deliverySystem[i][j].building==nBuilding&&deliverySystem[i][j].building==nRoom)
 			{
-				printf("------------>Found a package in (%d,%d)\n",x,y);
+				printf("------------>Found a package in (%d,%d)\n",i,j);
 				packagecnt++;
 			}
 		}
-	 
+	}
 	return packagecnt;
 }
