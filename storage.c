@@ -116,7 +116,7 @@ int str_backupSystem(char* filepath) {
 		{
 			if(deliverySystem[x][y].cnt!=0)
 			{
-				fprintf(fp,"%d %d %d %d",x,y,deliverySystem[x][y].building,deliverySystem[x][y].room);
+				fprintf(fp,"%d %d %d %d ",x,y,deliverySystem[x][y].building,deliverySystem[x][y].room);
 				fprintf(fp,"%s %s\n",deliverySystem[x][y].passwd,deliverySystem[x][y].context);
 			}
 		
@@ -141,11 +141,12 @@ int str_createSystem(char* filepath) {
 	FILE *fp;
 	fp=fopen(filepath,"r");//open storage.txt file mode reading.
 	
-	fscanf(fp,"%d %d",&systemSize[0],&systemSize[1]);
-	fscanf(fp,"%s",masterPassword);
+	fscanf(fp,"%d %d ",&systemSize[0],&systemSize[1]);
+	fscanf(fp,"%s ",masterPassword);
 	
 	if(fp=NULL)
 	{	
+		//fclose(fp);
 		return -1;
 	} 
 	
@@ -163,7 +164,7 @@ int str_createSystem(char* filepath) {
 			for(j=0;j<systemSize[0];j++)
 				deliverySystem[i][j].context=(char *)malloc(100*sizeof(char));
 		}
-		//deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
+		
 		for(i=0;i<systemSize[0];i++)
 		{
 			for(j=0;j<systemSize[0];j++)
@@ -176,10 +177,10 @@ int str_createSystem(char* filepath) {
 		while((c=fgetc(fp))!=EOF)
 		{
 			//Require declare variables(x,y)
-			fscanf(fp,"%d %d",&x,&y);
+			fscanf(fp,"%d %d ",&x,&y);
 			deliverySystem[x][y].cnt++;
-			fscanf(fp,"%d %d %s",&deliverySystem[x][y].building,&deliverySystem[x][y].room,deliverySystem[x][y].passwd);
-			fscanf(fp,"%s",deliverySystem[x][y].context);
+			fscanf(fp,"%d %d %s ",&deliverySystem[x][y].building,&deliverySystem[x][y].room,deliverySystem[x][y].passwd);
+			fscanf(fp,"%s ",deliverySystem[x][y].context);
 		}
 		//allocate memory again for context.
 		//deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
@@ -332,7 +333,7 @@ int str_findStorage(int nBuilding, int nRoom) {
 	//variable packagecnt:if there are package that user want to find, packagecnt is not 0 anymore.so return not zero.
 
 	int i,j;
-	int cnt;
+	int cnt=0;
 	for(i=0;i<systemSize[0];i++)
 	{
 		for(j=0;j<systemSize[1];j++)
