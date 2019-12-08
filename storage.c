@@ -59,8 +59,8 @@ static void initStorage(int x, int y) {
 	deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
 	deliverySystem[x][y].building = 0;
 	deliverySystem[x][y].room = 0;
-	strcpy(deliverySystem[x][y].passwd, "aaaa");
-	strcpy(deliverySystem[x][y].context, "qqqq");
+	//strcpy(deliverySystem[x][y].passwd, "aaaa");
+	//strcpy(deliverySystem[x][y].context, "qqqq");
 	
 	//fscanf(fp,"%s",deliverySystem[x][y].context);
 	 
