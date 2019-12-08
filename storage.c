@@ -288,7 +288,7 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 		{
 			deliverySystem[x][y].passwd[i]=passwd[i];
 		}*/
-		for(i=0;i<(PASSWD_LEN+1); i++)
+		for(i=0;i<(PASSWD_LEN+1); i++)//나 쉬마려 두시간전부터 참고있 
 		{
 			deliverySystem[x][y].passwd[i]=passwd[i];
 		}
@@ -314,7 +314,7 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 //return : 0 - successfully extracted, -1 = failed to extract
 int str_extractStorage(int x, int y) {
 	//If password is matching, inputPasswd function return 0.
-	inputPasswd(x, y);
+	//inputPasswd(x, y);
 	
 	//if password not matching I want finish this turn so return -1.
 	if(inputPasswd(x,y)!=0)
