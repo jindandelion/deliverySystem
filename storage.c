@@ -283,8 +283,17 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 		deliverySystem[x][y].building=nBuilding;
 		deliverySystem[x][y].room=nRoom;
 		deliverySystem[x][y].context=msg;
-		for(i=0;i<sizeof(passwd[PASSWD_LEN+1]); i++)
+		//아니 근데 위에 msg는 저렇게 해줬을 때 잘 저장 됬거든? 근 
+		/*for(i=0;i<sizeof(passwd[PASSWD_LEN+1]); i++)
+		{
 			deliverySystem[x][y].passwd[i]=passwd[i];
+		}*/
+		for(i=0;i<(PASSWD_LEN+1); i++)
+		{
+			deliverySystem[x][y].passwd[i]=passwd[i];
+		}
+			//deliverySystem[x][y].passwd[i]=passwd[i];
+		//deliverySystem[x][y].passwd=passwd;
 		
 		deliverySystem[x][y].cnt=1;
 		storedCnt++;//+1 number of cells occupied
