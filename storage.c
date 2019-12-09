@@ -17,7 +17,6 @@ typedef struct {
 	int room;
 	int cnt;
 	char passwd[PASSWD_LEN+1];
-	//deliverySystem[x][y].passwd[PASSWD_LEN+1]
 	char *context;
 } storage_t;
 
@@ -27,8 +26,6 @@ static int storedCnt = 0;					//number of cells occupied
 static int systemSize[2] = {0, 0};  		//row/column of the delivery system 
 static char masterPassword[PASSWD_LEN+1];	//master password
 
-//static int row;
-//static int column;
 
 
 // ------- inner functions ---------------
@@ -144,16 +141,18 @@ int str_createSystem(char* filepath) {
 	char c;
 	
 	FILE *fp;
-	fp=fopen(filepath,"r");//open storage.txt file mode reading.
-	
+	//open storage.txt file mode reading.
+	fp=fopen(filepath,"r");
+	//store row&column
 	fscanf(fp,"%d %d ",&systemSize[0],&systemSize[1]);
 	
+	//allocate memory
 	deliverySystem=(storage_t**)malloc(systemSize[0]*sizeof(struct storage_t*));
 	for(i=0;i<systemSize[0];i++)
 	{
 		deliverySystem[i]=(storage_t*)malloc(systemSize[1]*sizeof(storage_t));
 	}
-	
+	//initialize all storage 
 	for(i=0;i<systemSize[0];i++)
 	{
 		for(j=0;j<systemSize[1];j++)
@@ -161,30 +160,29 @@ int str_createSystem(char* filepath) {
 			initStorage(i, j);
 		}
 	}
-
+	//store master password
 	fscanf(fp,"%s ",masterPassword);
 	
+	//store each storage information
+	while( !feof(fp) )
+		{
+		fscanf(fp,"%d %d",&x,&y);
+		deliverySystem[x][y].cnt=1;
+		fscanf(fp,"%d %d %s",&deliverySystem[x][y].building,&deliverySystem[x][y].room,deliverySystem[x][y].passwd);
+		fscanf(fp,"%s",deliverySystem[x][y].context); 
+		storedCnt++;
+	}
+	//for perfect run
+	storedCnt--;
 	
-		while( !feof(fp) )
-		{
-			//Require declare variables(x,y)
-			fscanf(fp,"%d %d",&x,&y);
-			deliverySystem[x][y].cnt=1;
-			fscanf(fp,"%d %d %s",&deliverySystem[x][y].building,&deliverySystem[x][y].room,deliverySystem[x][y].passwd);
-			fscanf(fp,"%s",deliverySystem[x][y].context);
-			storedCnt++;
-		}
-		//for perfect run
-		storedCnt--;
-		
-		if(fp == NULL)
-		{
-			return -1;
-		}
+	if(fp == NULL)
+	{
+		return -1;
+	}
 
-		fclose(fp);
-	
-		return 0;
+	fclose(fp);
+
+	return 0;
 		
 	
 }
@@ -267,21 +265,14 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 	if(deliverySystem[x][y].cnt==0)
 	{
 		//print input number at the storage.txt 
-		//fprintf("%d %d %d %d %s %s",x,y,nBuilding,nRoom,msg[MAX_MSG_SIZE+1],passwd[PASSWD_LEN+1]);
 		deliverySystem[x][y].building=nBuilding;
 		deliverySystem[x][y].room=nRoom;
 		deliverySystem[x][y].context=msg;
-		//아니 근데 위에 msg는 저렇게 해줬을 때 잘 저장 됬거든? 근 
-		/*for(i=0;i<sizeof(passwd[PASSWD_LEN+1]); i++)
-		{
-			deliverySystem[x][y].passwd[i]=passwd[i];
-		}*/
-		for(i=0;i<(PASSWD_LEN+1); i++)//나 쉬마려 두시간전부터 참고있 
+		
+		for(i=0;i<(PASSWD_LEN+1); i++)
 		{
 			deliverySystem[x][y].passwd[i]=passwd[i];
 		}
-			//deliverySystem[x][y].passwd[i]=passwd[i];
-		//deliverySystem[x][y].passwd=passwd;
 		
 		deliverySystem[x][y].cnt=1;
 		storedCnt++;//+1 number of cells occupied
@@ -301,8 +292,6 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 //int x, int y : coordinate of the cell to extract
 //return : 0 - successfully extracted, -1 = failed to extract
 int str_extractStorage(int x, int y) {
-	//If password is matching, inputPasswd function return 0.
-	//inputPasswd(x, y);
 	
 	//if password not matching I want finish this turn so return -1.
 	if(inputPasswd(x,y)!=0)
@@ -311,15 +300,16 @@ int str_extractStorage(int x, int y) {
 		return -1;
 	}
 	//if password is matching, delivery system give user's package.
+	//If password is matching, inputPasswd function return 0.
 	else
 	{
 		printStorageInside(x,y);//print the inside context of a specific cell.
 		initStorage(x,y);//extract package initialize that storage.
-		storedCnt--;
+		storedCnt--;//-1 number of cells occupied
 		
 		return 0;
 	}
-	//-1 number of cells occupied
+	
 }
 
 //find my package from the storage
