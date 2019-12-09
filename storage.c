@@ -174,21 +174,9 @@ int str_createSystem(char* filepath) {
 			fscanf(fp,"%s",deliverySystem[x][y].context);
 			storedCnt++;
 		}
-		//for test
+		//for perfect run
+		storedCnt--;
 		
-		/*for(i=0;i<systemSize[0];i++)
-		{
-			for(j=0;j<systemSize[1];j++)
-			{
-				printf("%d %d %d %d %s\n", i, j, deliverySystem[i][j].building, deliverySystem[i][j].room, deliverySystem[i][j].passwd);
-			}
-		}*/
-		
-		
-		//allocate memory again for context.
-		//deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
-	    //fscanf(fp,"%s",deliverySystem[x][y].context);
-
 		if(fp == NULL)
 		{
 			return -1;
