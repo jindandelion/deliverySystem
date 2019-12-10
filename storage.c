@@ -51,17 +51,12 @@ static void printStorageInside(int x, int y) {
 static void initStorage(int x, int y) {
 	//initialize specific storage
 	deliverySystem[x][y].cnt=0;
-//	printf("package is getout of the deliverySystem\n");
+	//calculation of string length&&allocate memory to the  context pointer
+	char str[MAX_MSG_SIZE+1]; 
+	strlen(deliverySystem[x][y].context);
+	str[MAX_MSG_SIZE]=deliverySystem[x][y].cnt;
+	deliverySystem[x][y].context = (char*)malloc(sizeof(char)*strlen(str));
 	
-	deliverySystem[x][y].context = (char*)malloc(sizeof(char)*20);
-	deliverySystem[x][y].building = 0;
-	deliverySystem[x][y].room = 0;
-	//strcpy(deliverySystem[x][y].passwd, "aaaa");
-	//strcpy(deliverySystem[x][y].context, "qqqq");
-	
-	//fscanf(fp,"%s",deliverySystem[x][y].context);
-	 
-		
 }
 
 //get password input and check if it is correct for the cell (x,y)
@@ -80,14 +75,14 @@ static int inputPasswd(int x, int y){
 	
 	if(strcmp(inputpasswd,deliverySystem[x][y].passwd)==0||strcmp(inputpasswd,masterPassword)==0)
 	{
-		return 0;
 		//password is matching
+		return 0;	
 	}
 	//if inputpassword not correct
 	else
 	{
-		return -1;
 		//password is not matching
+		return -1;
 	}
 	
 }
@@ -139,6 +134,9 @@ int str_createSystem(char* filepath) {
 	int i,j;
 	int x,y;//this variables for row&column
 	char c;
+	//char str[];
+	//this variable is about string length
+	//int strleng;
 	
 	FILE *fp;
 	//open storage.txt file mode reading.
@@ -165,11 +163,12 @@ int str_createSystem(char* filepath) {
 	
 	//store each storage information
 	while( !feof(fp) )
-		{
+	{
 		fscanf(fp,"%d %d",&x,&y);
 		deliverySystem[x][y].cnt=1;
 		fscanf(fp,"%d %d %s",&deliverySystem[x][y].building,&deliverySystem[x][y].room,deliverySystem[x][y].passwd);
-		fscanf(fp,"%s",deliverySystem[x][y].context); 
+		fscanf(fp,"%s",deliverySystem[x][y].context);
+		//str[]=deliverySystem[x][y].context;
 		storedCnt++;
 	}
 	//for perfect run
