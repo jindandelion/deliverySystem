@@ -52,10 +52,12 @@ static void initStorage(int x, int y) {
 	//initialize specific storage
 	deliverySystem[x][y].cnt=0;
 	//calculation of string length&&allocate memory to the  context pointer
+	
 	char str[MAX_MSG_SIZE+1]; 
 	strlen(deliverySystem[x][y].context);
 	str[MAX_MSG_SIZE]=deliverySystem[x][y].cnt;
 	deliverySystem[x][y].context = (char*)malloc(sizeof(char)*strlen(str));
+	
 	
 }
 
@@ -134,9 +136,7 @@ int str_createSystem(char* filepath) {
 	int i,j;
 	int x,y;//this variables for row&column
 	char c;
-	//char str[];
-	//this variable is about string length
-	//int strleng;
+	//char str[MAX_MSG_SIZE+1]; 
 	
 	FILE *fp;
 	//open storage.txt file mode reading.
@@ -150,7 +150,7 @@ int str_createSystem(char* filepath) {
 	{
 		deliverySystem[i]=(storage_t*)malloc(systemSize[1]*sizeof(storage_t));
 	}
-	//initialize all storage 
+	//initailize storage
 	for(i=0;i<systemSize[0];i++)
 	{
 		for(j=0;j<systemSize[1];j++)
@@ -260,9 +260,12 @@ int str_checkStorage(int x, int y) {
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
 
 	int i;
+	char str[MAX_MSG_SIZE+1]; 
+	
 	//if deliverySystem[x][y] is empty, we can store package there so return 0;
 	if(deliverySystem[x][y].cnt==0)
 	{
+	
 		//print input number at the storage.txt 
 		deliverySystem[x][y].building=nBuilding;
 		deliverySystem[x][y].room=nRoom;
