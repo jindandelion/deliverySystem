@@ -51,13 +51,18 @@ static void printStorageInside(int x, int y) {
 static void initStorage(int x, int y) {
 	//initialize specific storage
 	deliverySystem[x][y].cnt=0;
-	//calculation of string length&&allocate memory to the  context pointer
+	deliverySystem[x][y].building=0;
+	deliverySystem[x][y].room=0;
+	//initialize password "aaaa"
+	strcpy(deliverySystem[x][y].passwd,"aaaa");
 	
+	//calculation of string length&&allocate memory to the  context pointer
 	char str[MAX_MSG_SIZE+1]; 
 	strlen(deliverySystem[x][y].context);
 	str[MAX_MSG_SIZE]=deliverySystem[x][y].cnt;
 	deliverySystem[x][y].context = (char*)malloc(sizeof(char)*strlen(str));
-	
+	//initialize context
+	strcpy(deliverySystem[x][y].context,"qqqq");
 	
 }
 
@@ -65,7 +70,7 @@ static void initStorage(int x, int y) {
 //int x, int y : cell for password check 
 //return : 0 - password is matching, -1 - password is not matching
 static int inputPasswd(int x, int y){
-	 
+	//declare variable user's password
 	char inputpasswd[PASSWD_LEN+1];
 	
 	printf("- input password for (%d,%d) :",x,y);
@@ -74,7 +79,6 @@ static int inputPasswd(int x, int y){
 	//Compare password is match or not.
 	
 	//if inputpasswd&(passwd or masterpassword) is same. 
-	
 	if(strcmp(inputpasswd,deliverySystem[x][y].passwd)==0||strcmp(inputpasswd,masterPassword)==0)
 	{
 		//password is matching
@@ -123,6 +127,7 @@ int str_backupSystem(char* filepath) {
 	}
 	//close the file.
 	fclose(fp);
+	
 	return 0;
 }
 
@@ -150,7 +155,8 @@ int str_createSystem(char* filepath) {
 	{
 		deliverySystem[i]=(storage_t*)malloc(systemSize[1]*sizeof(storage_t));
 	}
-	//initailize storage
+	
+	//initailize storage&allocate context memory(because function initStorage is allocate memory for context)
 	for(i=0;i<systemSize[0];i++)
 	{
 		for(j=0;j<systemSize[1];j++)
@@ -173,7 +179,7 @@ int str_createSystem(char* filepath) {
 	}
 	//for perfect run
 	storedCnt--;
-	
+	//if FIle is Null, return -1
 	if(fp == NULL)
 	{
 		return -1;
@@ -265,7 +271,6 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 	//if deliverySystem[x][y] is empty, we can store package there so return 0;
 	if(deliverySystem[x][y].cnt==0)
 	{
-	
 		//print input number at the storage.txt 
 		deliverySystem[x][y].building=nBuilding;
 		deliverySystem[x][y].room=nRoom;
